@@ -17,7 +17,7 @@ from streamlit_autorefresh import st_autorefresh
 # =========================================================
 
 st.set_page_config(
-    page_title="Nila River Prediction",
+    page_title=" River Prediction",
     page_icon="🌊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -327,8 +327,8 @@ current_rainfall, weather_df, weather_error = get_weather_data(
 # LEFT SIDEBAR
 # =========================================================
 
-st.sidebar.markdown("# 🌊 NILA RIVER")
-st.sidebar.caption("AI Water Level Prediction System")
+st.sidebar.markdown("# 🌊  RIVER")
+st.sidebar.caption(" Water Level Prediction System")
 
 st.sidebar.markdown("---")
 
@@ -441,7 +441,7 @@ st.sidebar.caption(
 st.markdown("""
 <div class="hero">
     <div class="hero-title">
-        🌊 NILA RIVER PREDICTION
+        🌊  RIVER WATER LEVEL PREDICTION
     </div>
     <div class="hero-subtitle">
         Intelligent Water Level Monitoring & Next-Day Prediction
@@ -925,7 +925,7 @@ st.warning(
 
 st.markdown("""
 <div class="footer">
-    Nila River Water Level Prediction System
+     River Water Level Prediction System
     <br>
     Built with Python, Streamlit, Plotly and Machine Learning
 </div>
