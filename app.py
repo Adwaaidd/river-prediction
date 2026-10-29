@@ -826,7 +826,7 @@ if prediction_value is not None:
     # ========================================================
 
     report = {
-        "project": "Nila River Water Level Prediction",
+        "project": " River Water Level Prediction",
         "generated_at": datetime.now().isoformat(),
         "prediction_target": "Next-day river level",
         "predicted_river_level_m": prediction_value,
@@ -937,7 +937,7 @@ st.warning(
 
 st.markdown("""
 <div class="footer">
-    Nila River Water Level Prediction |
+    River Water Level Prediction |
     AI & Machine Learning Mini Project
     <br>
     Built with Python, Streamlit and Multiple Linear Regression
