@@ -12,7 +12,7 @@ st_autorefresh(interval=5 * 60 * 1000, key="rainfall_refresh")
 # ------------------------------------------
 
 st.set_page_config(
-    page_title="Nila River Prediction",
+    page_title="River Prediction",
     page_icon="🌊",
     layout="wide"
 )
@@ -27,7 +27,7 @@ MODEL_PATH = Path(__file__).parent / "nila_river_mlr.pkl"
 def load_model(path):
     return joblib.load(path)
 
-st.title("🌊 Nila River Water Level Prediction")
+st.title("🌊 River Water Level Prediction")
 st.write(
     "Machine Learning Based River Water Level "
     "Prediction System"
@@ -337,7 +337,7 @@ if submitted:
 st.markdown("---")
 
 st.caption(
-    "Nila River Water Level Prediction | "
+    "River Water Level Prediction | "
     "Machine Learning Mini Project"
 )
 import streamlit as st
