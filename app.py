@@ -16,7 +16,7 @@ import json
 # ============================================================
 
 st.set_page_config(
-    page_title="Nila River | AI Prediction",
+    page_title=" River Water Level Prediction",
     page_icon="🌊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -375,10 +375,10 @@ current_rainfall, weather_df, daily_df, weather_error = (
 st.markdown("""
 <div class="hero">
     <div class="hero-title">
-        🌊 NILA RIVER PREDICTION
+        🌊  RIVER PREDICTION
     </div>
     <div class="hero-subtitle">
-        AI-powered river water level prediction dashboard
+         River Water level prediction dashboard
         | Kerala, India
     </div>
 </div>
@@ -389,8 +389,8 @@ st.markdown("""
 # SIDEBAR
 # ============================================================
 
-st.sidebar.title("🌊 Nila River")
-st.sidebar.caption("AI Water Level Monitoring")
+st.sidebar.title("🌊  River")
+st.sidebar.caption(" Water Level Monitoring")
 
 st.sidebar.markdown("---")
 
