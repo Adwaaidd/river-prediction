@@ -373,7 +373,7 @@ def get_live_rainfall():
     return rainfall, updated_time
 
 
-st.title("🌧️ Nila River Water Level Prediction")
+st.title("🌧️ River Water Level Prediction")
 st.subheader("Live Rainfall Monitoring")
 
 if st.button("🔄 Refresh Rainfall"):
