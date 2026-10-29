@@ -21,70 +21,8 @@ st.set_page_config(
     page_icon="🌊",
     layout="wide",
     initial_sidebar_state="expanded"
-    st.markdown("""
-<style>
-/* Main app background */
-.stApp {
-    background-color: #000000;
-    color: #FFFFFF;
-}
+    st.markdown
 
-/* Main content area */
-[data-testid="stAppViewContainer"] {
-    background-color: #000000;
-}
-
-/* Sidebar background */
-[data-testid="stSidebar"] {
-    background-color: #0A0A0A;
-}
-
-/* Headings and text */
-h1, h2, h3, h4, p, label, span {
-    color: #FFFFFF;
-}
-
-/* Metric cards */
-[data-testid="stMetric"] {
-    background-color: #111111;
-    border: 1px solid #292929;
-    padding: 15px;
-    border-radius: 12px;
-}
-
-/* Input fields */
-.stNumberInput input,
-.stTextInput input {
-    background-color: #151515;
-    color: #FFFFFF;
-}
-
-/* Dropdowns */
-.stSelectbox div[data-baseweb="select"] {
-    background-color: #151515;
-    color: #FFFFFF;
-}
-
-/* Buttons */
-.stButton > button {
-    background-color: #1DB954;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 8px;
-}
-
-.stButton > button:hover {
-    background-color: #169C46;
-    color: #FFFFFF;
-    border: 1px solid #1DB954;
-}
-
-/* Dividers */
-hr {
-    border-color: #333333;
-}
-</style>
-""", unsafe_allow_html=True)
 )
 
 # Refresh the dashboard every 5 minutes
@@ -99,85 +37,154 @@ st_autorefresh(
 # --------------------------------------------------
 
 st.markdown("""
+```python
+st.markdown("""
 <style>
-    .stApp {
-        background-color: #f3f7fc;
-    }
 
-    .block-container {
-        padding-top: 1.5rem;
-        padding-bottom: 2rem;
-    }
+/* ===== MAIN BLACK BACKGROUND ===== */
+.stApp {
+    background-color: #000000;
+    color: #FFFFFF;
+}
 
-    .hero {
-        background: linear-gradient(120deg, #073b66, #087eae);
-        padding: 28px;
-        border-radius: 18px;
-        color: white;
-        margin-bottom: 22px;
-    }
+[data-testid="stAppViewContainer"] {
+    background-color: #000000;
+}
 
-    .hero h1 {
-        color: white;
-        margin-bottom: 5px;
-    }
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
 
-    .hero p {
-        color: #e1f5ff;
-        font-size: 16px;
-    }
+/* ===== SIDEBAR ===== */
+[data-testid="stSidebar"] {
+    background-color: #0A0A0A;
+}
 
-    .metric-card {
-        background: white;
-        padding: 20px;
-        border-radius: 15px;
-        border: 1px solid #dce8f4;
-        box-shadow: 0 3px 12px rgba(0, 40, 80, 0.04);
-        min-height: 130px;
-    }
+[data-testid="stSidebar"] * {
+    color: #FFFFFF;
+}
 
-    .metric-title {
-        color: #60758a;
-        font-size: 14px;
-    }
+/* ===== HEADINGS AND TEXT ===== */
+h1, h2, h3, h4, h5, p, label {
+    color: #FFFFFF;
+}
 
-    .metric-value {
-        color: #073b66;
-        font-size: 27px;
-        font-weight: 750;
-        margin-top: 8px;
-    }
+/* ===== HERO SECTION ===== */
+.hero {
+    background: linear-gradient(135deg, #111111, #001B2E);
+    border: 1px solid #123B52;
+    padding: 25px;
+    border-radius: 18px;
+    margin-bottom: 25px;
+}
 
-    .metric-caption {
-        color: #718096;
-        font-size: 12px;
-        margin-top: 5px;
-    }
+.hero h1 {
+    color: #FFFFFF;
+}
 
-    .section-title {
-        color: #073b66;
-        font-weight: 700;
-    }
+.hero p {
+    color: #B8C7D9;
+}
 
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
-    }
+/* ===== METRIC CARDS ===== */
+.metric-card {
+    background: linear-gradient(145deg, #111111, #181818);
+    border: 1px solid #292929;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
 
-    div[data-testid="stSidebar"] {
-        background-color: #e8f2fb;
-    }
+.metric-title {
+    color: #A0AEC0;
+    font-size: 14px;
+}
 
-    @media (max-width: 640px) {
-        .hero {
-            padding: 18px;
-        }
+.metric-value {
+    color: #00D4FF;
+    font-size: 28px;
+    font-weight: bold;
+}
 
-        .metric-value {
-            font-size: 22px;
-        }
-    }
-</style>
-""", unsafe_allow_html=True)
+.metric-caption {
+    color: #A0AEC0;
+    font-size: 12px;
+}
+
+/* ===== SECTION TITLES ===== */
+.section-title {
+    color: #00D4FF;
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+/* ===== TABS ===== */
+.stTabs [data-baseweb="tab-list"] {
+    background-color: #0A0A0A;
+    gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background-color: #151515;
+    color: #FFFFFF;
+    border-radius: 8px;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: #003344;
+    color: #00D4FF;
+}
+
+/* ===== INPUT FIELDS ===== */
+.stNumberInput input,
+.stTextInput input {
+    background-color: #151515;
+    color: #FFFFFF;
+    border: 1px solid #333333;
+}
+
+/* ===== SLIDERS ===== */
+.stSlider [data-baseweb="slider"] {
+    color: #00D4FF;
+}
+
+/* ===== BUTTONS ===== */
+.stButton > button,
+.stDownloadButton > button {
+    background-color: #00A6CC;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 9px;
+    padding: 8px 18px;
+    font-weight: bold;
+}
+
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+    background-color: #007F99;
+    color: #FFFFFF;
+    border: 1px solid #00D4FF;
+}
+
+/* ===== DIVIDERS ===== */
+hr {
+    border-color: #292929;
+}
+
+/* ===== EXPANDERS ===== */
+[data-testid="stExpander"] {
+    background-color: #101010;
+    border: 1px solid #292929;
+    border-radius: 10px;
+}
+
+/* ===== DATAFRAMES ===== */
+[data-tes]()
+```
+
 
 
 # --------------------------------------------------
