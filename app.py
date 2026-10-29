@@ -1,46 +1,46 @@
 import streamlit as st
+import streamlit_autorefresh
+import requests
 import pandas as pd
 import numpy as np
 import joblib
-import requests
 import plotly.graph_objects as go
 import plotly.express as px
-import json
-
 from pathlib import Path
 from datetime import datetime
-from streamlit_autorefresh import st_autorefresh
+import json
 
 
-# --------------------------------------------------
+# ============================================================
 # PAGE CONFIGURATION
-# --------------------------------------------------
+# ============================================================
 
 st.set_page_config(
-    page_title=" River Predictor",
+    page_title="Nila River | AI Prediction",
     page_icon="🌊",
     layout="wide",
     initial_sidebar_state="expanded"
-
 )
 
-# Refresh the dashboard every 5 minutes
-st_autorefresh(
+
+# ============================================================
+# AUTOMATIC REFRESH - EVERY 5 MINUTES
+# ============================================================
+
+streamlit_autorefresh.st_autorefresh(
     interval=5 * 60 * 1000,
-    key="nila_refresh"
+    key="river_dashboard_refresh"
 )
 
 
-# --------------------------------------------------
-# CUSTOM CSS
-# --------------------------------------------------
+# ============================================================
+# BLACK BACKGROUND AND DARK UI
+# ============================================================
 
-st.markdown("""
-```python
 st.markdown("""
 <style>
 
-/* ===== MAIN BLACK BACKGROUND ===== */
+/* Main background */
 .stApp {
     background-color: #000000;
     color: #FFFFFF;
@@ -50,151 +50,210 @@ st.markdown("""
     background-color: #000000;
 }
 
+[data-testid="stHeader"] {
+    background-color: #000000;
+}
+
+[data-testid="stMain"] {
+    background-color: #000000;
+}
+
+/* Main content spacing */
 .block-container {
     padding-top: 2rem;
     padding-bottom: 2rem;
 }
 
-/* ===== SIDEBAR ===== */
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: #0A0A0A;
+    background-color: #080808;
+    border-right: 1px solid #202020;
 }
 
 [data-testid="stSidebar"] * {
     color: #FFFFFF;
 }
 
-/* ===== HEADINGS AND TEXT ===== */
-h1, h2, h3, h4, h5, p, label {
-    color: #FFFFFF;
+/* General text */
+.stApp p,
+.stApp label,
+.stApp li {
+    color: #D1D5DB;
 }
 
-/* ===== HERO SECTION ===== */
+/* Headings */
+h1, h2, h3, h4, h5 {
+    color: #FFFFFF !important;
+}
+
+/* Hero section */
 .hero {
-    background: linear-gradient(135deg, #111111, #001B2E);
-    border: 1px solid #123B52;
-    padding: 25px;
+    background: linear-gradient(135deg, #080808, #001925);
+    border: 1px solid #073B4C;
     border-radius: 18px;
-    margin-bottom: 25px;
+    padding: 28px;
+    margin-bottom: 24px;
 }
 
-.hero h1 {
+.hero-title {
+    font-size: 34px;
+    font-weight: 800;
     color: #FFFFFF;
+    margin-bottom: 8px;
 }
 
-.hero p {
-    color: #B8C7D9;
+.hero-subtitle {
+    font-size: 15px;
+    color: #9CA3AF;
 }
 
-/* ===== METRIC CARDS ===== */
+/* Metric cards */
 .metric-card {
-    background: linear-gradient(145deg, #111111, #181818);
-    border: 1px solid #292929;
+    background: linear-gradient(145deg, #111111, #080808);
+    border: 1px solid #262626;
+    border-radius: 14px;
     padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 15px;
+    min-height: 120px;
 }
 
 .metric-title {
-    color: #A0AEC0;
-    font-size: 14px;
+    color: #9CA3AF;
+    font-size: 13px;
+    margin-bottom: 10px;
 }
 
 .metric-value {
     color: #00D4FF;
     font-size: 28px;
-    font-weight: bold;
+    font-weight: 800;
 }
 
 .metric-caption {
-    color: #A0AEC0;
+    color: #737373;
     font-size: 12px;
+    margin-top: 8px;
 }
 
-/* ===== SECTION TITLES ===== */
-.section-title {
+/* Section heading */
+.section-heading {
+    font-size: 21px;
+    font-weight: 700;
     color: #00D4FF;
-    font-size: 22px;
-    font-weight: bold;
-    margin-top: 20px;
+    margin-top: 24px;
     margin-bottom: 12px;
 }
 
-/* ===== TABS ===== */
-.stTabs [data-baseweb="tab-list"] {
-    background-color: #0A0A0A;
-    gap: 8px;
-}
-
-.stTabs [data-baseweb="tab"] {
-    background-color: #151515;
-    color: #FFFFFF;
-    border-radius: 8px;
-}
-
-.stTabs [aria-selected="true"] {
-    background-color: #003344;
-    color: #00D4FF;
-}
-
-/* ===== INPUT FIELDS ===== */
-.stNumberInput input,
-.stTextInput input {
-    background-color: #151515;
-    color: #FFFFFF;
-    border: 1px solid #333333;
-}
-
-/* ===== SLIDERS ===== */
-.stSlider [data-baseweb="slider"] {
-    color: #00D4FF;
-}
-
-/* ===== BUTTONS ===== */
+/* Buttons */
 .stButton > button,
 .stDownloadButton > button {
-    background-color: #00A6CC;
+    background-color: #007F99;
     color: #FFFFFF;
-    border: none;
+    border: 1px solid #00B8D9;
     border-radius: 9px;
-    padding: 8px 18px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .stButton > button:hover,
 .stDownloadButton > button:hover {
-    background-color: #007F99;
+    background-color: #00A6CC;
     color: #FFFFFF;
     border: 1px solid #00D4FF;
 }
 
-/* ===== DIVIDERS ===== */
-hr {
-    border-color: #292929;
+/* Input boxes */
+.stNumberInput input,
+.stTextInput input {
+    background-color: #111111;
+    color: #FFFFFF;
 }
 
-/* ===== EXPANDERS ===== */
+/* Select boxes */
+[data-baseweb="select"] > div {
+    background-color: #111111;
+    color: #FFFFFF;
+}
+
+/* Sliders */
+.stSlider [data-baseweb="slider"] {
+    color: #00D4FF;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {
+    background-color: #080808;
+    gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    color: #D1D5DB;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #00D4FF !important;
+}
+
+/* Expanders */
 [data-testid="stExpander"] {
-    background-color: #101010;
+    background-color: #0A0A0A;
     border: 1px solid #292929;
     border-radius: 10px;
 }
 
-/* ===== DATAFRAMES ===== */
-[data-tes]()
-```
+/* Alerts */
+[data-testid="stAlert"] {
+    background-color: #111111;
+    border: 1px solid #333333;
+}
+
+/* Divider */
+hr {
+    border-color: #252525;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    color: #666666;
+    font-size: 12px;
+    padding: 20px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+    .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 1rem;
+    }
+
+    .hero {
+        padding: 18px;
+    }
+
+    .hero-title {
+        font-size: 25px;
+    }
+
+    .metric-value {
+        font-size: 23px;
+    }
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 
+# ============================================================
+# CONFIGURATION
+# ============================================================
 
-# --------------------------------------------------
-# CONSTANTS
-# --------------------------------------------------
+MODEL_PATH = Path(__file__).parent / "nila_river_mlr.pkl"
 
+# Approximate location near the Nila River in Kerala.
+# Change these coordinates if you have a specific monitoring
+# station whose location is known.
 LATITUDE = 10.77
 LONGITUDE = 76.38
-TIMEZONE = "Asia/Kolkata"
-
-MODEL_PATH = Path(__file__).resolve().parent / "nila_river_mlr.pkl"
 
 FEATURES = [
     "rainfall_mm",
@@ -208,41 +267,40 @@ FEATURES = [
 ]
 
 
-# --------------------------------------------------
-# LOAD MODEL
-# --------------------------------------------------
+# ============================================================
+# LOAD TRAINED MODEL
+# ============================================================
 
 @st.cache_resource
-def load_model():
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(
-            f"Model file not found: {MODEL_PATH.name}. "
-            "Upload nila_river_mlr.pkl to the repository."
-        )
-
-    return joblib.load(MODEL_PATH)
+def load_model(path, modified_time):
+    return joblib.load(path)
 
 
-try:
-    model = load_model()
-
-except Exception as error:
-    st.error("The machine learning model could not be loaded.")
-    st.code(str(error))
-    st.info(
-        "Check that nila_river_mlr.pkl is in the same "
-        "GitHub folder as app.py."
+if not MODEL_PATH.exists():
+    st.error(
+        "Model file not found. Please upload "
+        "'nila_river_mlr.pkl' to the same GitHub folder as app.py."
     )
     st.stop()
 
+try:
+    model = load_model(
+        str(MODEL_PATH),
+        MODEL_PATH.stat().st_mtime
+    )
+except Exception as error:
+    st.error(f"Unable to load the trained model: {error}")
+    st.stop()
 
-# --------------------------------------------------
-# FETCH WEATHER / RAINFALL ESTIMATES
-# --------------------------------------------------
+
+# ============================================================
+# GET WEATHER DATA FROM OPEN-METEO
+# ============================================================
 
 @st.cache_data(ttl=300)
-def get_weather():
-    endpoint = "https://api.open-meteo.com/v1/forecast"
+def get_weather_data():
+
+    url = "https://api.open-meteo.com/v1/forecast"
 
     params = {
         "latitude": LATITUDE,
@@ -251,214 +309,218 @@ def get_weather():
         "hourly": "precipitation",
         "past_days": 7,
         "forecast_days": 1,
-        "timezone": TIMEZONE
+        "timezone": "Asia/Kolkata"
     }
 
-    response = requests.get(
-        endpoint,
-        params=params,
-        timeout=15
-    )
-
-    response.raise_for_status()
-    data = response.json()
-
-    current = data.get("current", {})
-    hourly = data.get("hourly", {})
-
-    times = hourly.get("time", [])
-    rainfall = hourly.get("precipitation", [])
-
-    weather_df = pd.DataFrame({
-        "time": pd.to_datetime(times),
-        "rainfall": pd.to_numeric(
-            pd.Series(rainfall),
-            errors="coerce"
+    try:
+        response = requests.get(
+            url,
+            params=params,
+            timeout=15
         )
-    }).dropna()
 
-    now = pd.Timestamp.now(tz=TIMEZONE).tz_localize(None)
+        response.raise_for_status()
 
-    past = weather_df[weather_df["time"] <= now]
+        data = response.json()
 
-    # Exclude the current, potentially incomplete hour
-    completed = past[past["time"] < now.floor("h")]
+        current_rainfall = data.get(
+            "current", {}
+        ).get("precipitation", 0)
 
-    rainfall_3d = completed.tail(72)["rainfall"].sum()
-    rainfall_7d = completed.tail(168)["rainfall"].sum()
+        hourly = data.get("hourly", {})
 
-    current_rainfall = float(
-        current.get("precipitation", 0) or 0
-    )
+        times = hourly.get("time", [])
+        rainfall = hourly.get("precipitation", [])
 
-    return {
-        "current_rainfall": current_rainfall,
-        "rainfall_3d": float(rainfall_3d),
-        "rainfall_7d": float(rainfall_7d),
-        "updated": current.get("time", "Unknown"),
-        "hourly_df": weather_df
-    }
+        weather_df = pd.DataFrame({
+            "time": times,
+            "rainfall_mm": rainfall
+        })
+
+        weather_df["time"] = pd.to_datetime(
+            weather_df["time"]
+        )
+
+        weather_df["rainfall_mm"] = pd.to_numeric(
+            weather_df["rainfall_mm"],
+            errors="coerce"
+        ).fillna(0)
+
+        today = datetime.now().date()
+
+        daily_df = weather_df[
+            weather_df["time"].dt.date == today
+        ].copy()
+
+        return (
+            float(current_rainfall or 0),
+            weather_df,
+            daily_df,
+            None
+        )
+
+    except Exception as error:
+        return 0.0, pd.DataFrame(), pd.DataFrame(), str(error)
 
 
-try:
-    weather = get_weather()
-    weather_available = True
-
-except Exception as error:
-    weather = None
-    weather_available = False
-    weather_error = str(error)
+current_rainfall, weather_df, daily_df, weather_error = (
+    get_weather_data()
+)
 
 
-# --------------------------------------------------
-# HEADER
-# --------------------------------------------------
+# ============================================================
+# DASHBOARD HEADER
+# ============================================================
 
 st.markdown("""
 <div class="hero">
-    <h1>🌊 Nila River Predictor</h1>
-    <p>
-        Smart river-level exploration using rainfall,
-        river conditions and dam parameters.
-    </p>
-    <span>📍 Approximate monitoring coordinates:
-    10.77° N, 76.38° E</span>
+    <div class="hero-title">
+        🌊 NILA RIVER PREDICTION
+    </div>
+    <div class="hero-subtitle">
+        AI-powered river water level prediction dashboard
+        | Kerala, India
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 
+# ============================================================
+# SIDEBAR
+# ============================================================
+
+st.sidebar.title("🌊 Nila River")
+st.sidebar.caption("AI Water Level Monitoring")
+
+st.sidebar.markdown("---")
+
+st.sidebar.subheader("Dashboard Information")
+
+st.sidebar.info(
+    "Enter the latest river and dam measurements "
+    "to predict the next day's river level."
+)
+
+st.sidebar.markdown("### Weather Information")
+
+if weather_error:
+    st.sidebar.warning(
+        "Live weather data is unavailable. "
+        "You can still enter rainfall manually."
+    )
+else:
+    st.sidebar.metric(
+        "Current Precipitation",
+        f"{current_rainfall:.1f} mm"
+    )
+
+st.sidebar.markdown("---")
+
+st.sidebar.caption(
+    "Weather source: Open-Meteo"
+)
+
+st.sidebar.caption(
+    "Prediction: Multiple Linear Regression"
+)
+
+st.sidebar.caption(
+    "Refresh interval: 5 minutes"
+)
+
+
+# ============================================================
+# INPUTS
+# ============================================================
+
+st.markdown(
+    '<div class="section-heading">📊 River Parameters</div>',
+    unsafe_allow_html=True
+)
+
 st.caption(
-    "Experimental ML dashboard · Weather data is model-estimated, "
-    "not a direct river-gauge measurement."
+    "Enter measurements for the river and dam. "
+    "The rainfall value is prefilled from the weather API "
+    "when available."
 )
 
+col1, col2, col3 = st.columns(3)
 
-# --------------------------------------------------
-# SIDEBAR INPUTS
-# --------------------------------------------------
-
-st.sidebar.title("🎛️ Prediction Controls")
-
-st.sidebar.write(
-    "Adjust the inputs to explore how the model's "
-    "predicted next-day river level changes."
-)
-
-if weather_available:
-    default_rain = weather["current_rainfall"]
-    default_3d = weather["rainfall_3d"]
-    default_7d = weather["rainfall_7d"]
-else:
-    default_rain = 0.0
-    default_3d = 0.0
-    default_7d = 0.0
-
-st.sidebar.subheader("🌧️ Rainfall")
-
-rainfall_mm = st.sidebar.slider(
-    "Current hourly rainfall estimate (mm)",
-    min_value=0.0,
-    max_value=200.0,
-    value=float(np.clip(default_rain, 0, 200)),
-    step=0.5
-)
-
-rainfall_3d_total_mm = st.sidebar.slider(
-    "Rainfall over the last 3 days (mm)",
-    min_value=0.0,
-    max_value=1000.0,
-    value=float(np.clip(default_3d, 0, 1000)),
-    step=1.0
-)
-
-rainfall_7d_total_mm = st.sidebar.slider(
-    "Rainfall over the last 7 days (mm)",
-    min_value=0.0,
-    max_value=2000.0,
-    value=float(np.clip(default_7d, 0, 2000)),
-    step=1.0
-)
-
-st.sidebar.subheader("🌊 River Conditions")
-
-river_level_m = st.sidebar.slider(
-    "Current river level (m)",
-    min_value=0.0,
-    max_value=20.0,
-    value=3.2,
-    step=0.1
-)
-
-river_level_change_m = st.sidebar.slider(
-    "Recent river-level change (m)",
-    min_value=-5.0,
-    max_value=5.0,
-    value=0.1,
-    step=0.1,
-    help="Positive means rising; negative means falling."
-)
-
-st.sidebar.subheader("🏞️ Dam Parameters")
-
-dam_storage_pct = st.sidebar.slider(
-    "Dam storage (%)",
-    min_value=0.0,
-    max_value=100.0,
-    value=65.0,
-    step=1.0
-)
-
-dam_inflow_m3s = st.sidebar.slider(
-    "Dam inflow (m³/s)",
-    min_value=0.0,
-    max_value=10000.0,
-    value=250.0,
-    step=10.0
-)
-
-dam_outflow_m3s = st.sidebar.slider(
-    "Dam outflow (m³/s)",
-    min_value=0.0,
-    max_value=10000.0,
-    value=200.0,
-    step=10.0
-)
-
-st.sidebar.divider()
-
-if st.sidebar.button(
-    "🔄 Refresh rainfall data",
-    use_container_width=True
-):
-    get_weather.clear()
-    st.rerun()
-
-
-# --------------------------------------------------
-# WEATHER STATUS
-# --------------------------------------------------
-
-if weather_available:
-    st.success(
-        f"🌦️ Weather API connected · "
-        f"Latest reported time: {weather['updated']}"
-    )
-else:
-    st.warning(
-        "Weather data is currently unavailable. "
-        "Rainfall defaults are set to zero; adjust them "
-        "manually or try refreshing the data."
+with col1:
+    rainfall_mm = st.number_input(
+        "Current Rainfall (mm)",
+        min_value=0.0,
+        max_value=1000.0,
+        value=float(max(0, current_rainfall)),
+        step=1.0,
+        help="Current precipitation estimate in millimetres."
     )
 
-    with st.expander("Weather connection details"):
-        st.code(weather_error)
+    rainfall_3d_total_mm = st.number_input(
+        "3-Day Rainfall Total (mm)",
+        min_value=0.0,
+        max_value=5000.0,
+        value=0.0,
+        step=1.0
+    )
+
+    rainfall_7d_total_mm = st.number_input(
+        "7-Day Rainfall Total (mm)",
+        min_value=0.0,
+        max_value=10000.0,
+        value=0.0,
+        step=1.0
+    )
+
+with col2:
+    river_level_m = st.number_input(
+        "Current River Level (m)",
+        min_value=0.0,
+        max_value=100.0,
+        value=2.0,
+        step=0.1
+    )
+
+    river_level_change_m = st.number_input(
+        "Recent River Level Change (m)",
+        min_value=-20.0,
+        max_value=20.0,
+        value=0.0,
+        step=0.1,
+        help="Positive means rising; negative means falling."
+    )
+
+    dam_storage_pct = st.slider(
+        "Dam Storage (%)",
+        min_value=0.0,
+        max_value=100.0,
+        value=50.0,
+        step=1.0
+    )
+
+with col3:
+    dam_inflow_m3s = st.number_input(
+        "Dam Inflow (m³/s)",
+        min_value=0.0,
+        max_value=100000.0,
+        value=100.0,
+        step=10.0
+    )
+
+    dam_outflow_m3s = st.number_input(
+        "Dam Outflow (m³/s)",
+        min_value=0.0,
+        max_value=100000.0,
+        value=100.0,
+        step=10.0
+    )
 
 
-# --------------------------------------------------
-# MODEL PREDICTION
-# --------------------------------------------------
+# ============================================================
+# CREATE MODEL INPUT
+# ============================================================
 
-input_values = {
+input_data = pd.DataFrame([{
     "rainfall_mm": rainfall_mm,
     "rainfall_3d_total_mm": rainfall_3d_total_mm,
     "rainfall_7d_total_mm": rainfall_7d_total_mm,
@@ -467,403 +529,419 @@ input_values = {
     "dam_storage_pct": dam_storage_pct,
     "dam_inflow_m3s": dam_inflow_m3s,
     "dam_outflow_m3s": dam_outflow_m3s
-}
+}])
 
-input_df = pd.DataFrame(
-    [[input_values[feature] for feature in FEATURES]],
-    columns=FEATURES
-)
-
-try:
-    prediction = float(model.predict(input_df)[0])
-
-    if not np.isfinite(prediction):
-        raise ValueError("The model returned an invalid number.")
-
-except Exception as error:
-    st.error("Prediction failed. Check the model and its input features.")
-    st.code(str(error))
-    st.stop()
+input_data = input_data[FEATURES]
 
 
-level_change = prediction - river_level_m
+# ============================================================
+# PREDICTION
+# ============================================================
+
+st.markdown("---")
+
+predict_col, reset_col = st.columns([2, 1])
+
+with predict_col:
+    predict_button = st.button(
+        "🔮 Predict Next-Day River Level",
+        use_container_width=True
+    )
+
+with reset_col:
+    st.caption(
+        "Predictions depend on the values entered above."
+    )
 
 
-# --------------------------------------------------
-# KPI CARDS
-# --------------------------------------------------
+if "prediction" not in st.session_state:
+    st.session_state.prediction = None
 
-def metric_card(title, value, caption):
+if predict_button:
+
+    try:
+        prediction = model.predict(input_data)
+
+        prediction_value = float(
+            np.asarray(prediction).reshape(-1)[0]
+        )
+
+        if not np.isfinite(prediction_value):
+            raise ValueError(
+                "The model returned an invalid prediction."
+            )
+
+        st.session_state.prediction = prediction_value
+
+    except Exception as error:
+        st.error(f"Prediction failed: {error}")
+
+
+# ============================================================
+# DISPLAY PREDICTION
+# ============================================================
+
+prediction_value = st.session_state.prediction
+
+if prediction_value is not None:
+
+    st.markdown("---")
+
     st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-title">{title}</div>
-            <div class="metric-value">{value}</div>
-            <div class="metric-caption">{caption}</div>
-        </div>
-        """,
+        '<div class="section-heading">'
+        '🎯 Prediction Results'
+        '</div>',
         unsafe_allow_html=True
     )
 
+    kpi1, kpi2, kpi3 = st.columns(3)
 
-st.markdown(
-    '<h3 class="section-title">📊 Monitoring Overview</h3>',
-    unsafe_allow_html=True
-)
+    with kpi1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-title">
+                PREDICTED NEXT-DAY LEVEL
+            </div>
+            <div class="metric-value">
+                {prediction_value:.2f} m
+            </div>
+            <div class="metric-caption">
+                Model estimate
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-c1, c2, c3, c4 = st.columns(4)
+    with kpi2:
+        difference = prediction_value - river_level_m
 
-with c1:
-    metric_card(
-        "🌧️ Current rainfall",
-        f"{rainfall_mm:.1f} mm",
-        "Current-hour input"
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-title">
+                CHANGE FROM ENTERED LEVEL
+            </div>
+            <div class="metric-value">
+                {difference:+.2f} m
+            </div>
+            <div class="metric-caption">
+                Predicted level minus current input
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with kpi3:
+        if difference > 0:
+            trend = "Rising"
+        elif difference < 0:
+            trend = "Falling"
+        else:
+            trend = "Unchanged"
+
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-title">
+                PREDICTED TREND
+            </div>
+            <div class="metric-value">
+                {trend}
+            </div>
+            <div class="metric-caption">
+                Based on the entered current level
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+    # ========================================================
+    # GAUGE CHART
+    # ========================================================
+
+    st.markdown(
+        '<div class="section-heading">'
+        '🌊 Predicted Water Level'
+        '</div>',
+        unsafe_allow_html=True
     )
 
-with c2:
-    metric_card(
-        "🌊 Current river level",
-        f"{river_level_m:.2f} m",
-        "User-provided input"
+    gauge_max = max(
+        10.0,
+        abs(prediction_value) * 1.5,
+        abs(river_level_m) * 1.5
     )
-
-with c3:
-    metric_card(
-        "🔮 Predicted next-day level",
-        f"{prediction:.2f} m",
-        "ML model estimate"
-    )
-
-with c4:
-    metric_card(
-        "📈 Predicted change",
-        f"{level_change:+.2f} m",
-        "Predicted minus current level"
-    )
-
-
-# --------------------------------------------------
-# TABS
-# --------------------------------------------------
-
-tab1, tab2, tab3, tab4 = st.tabs([
-    "🌊 Water Gauge",
-    "📈 Graphs",
-    "🌧️ Rainfall",
-    "📋 Input Details"
-])
-
-
-# --------------------------------------------------
-# TAB 1: WATER GAUGE
-# --------------------------------------------------
-
-with tab1:
-
-    st.subheader("Next-Day Water-Level Gauge")
-
-    st.caption(
-        "The gauge is a visual representation of the model output, "
-        "not an official flood threshold."
-    )
-
-    gauge_max = max(10.0, prediction * 1.25, river_level_m * 1.25)
 
     gauge = go.Figure(
         go.Indicator(
-            mode="gauge+number+delta",
-            value=prediction,
-            number={"suffix": " m", "valueformat": ".2f"},
-            delta={
-                "reference": river_level_m,
-                "valueformat": ".2f",
-                "suffix": " m"
+            mode="gauge+number",
+            value=prediction_value,
+            number={
+                "suffix": " m",
+                "font": {
+                    "color": "#00D4FF",
+                    "size": 35
+                }
             },
-            title={"text": "Predicted Next-Day River Level"},
+            title={
+                "text": "Predicted River Level",
+                "font": {
+                    "color": "white"
+                }
+            },
             gauge={
                 "axis": {
-                    "range": [0, gauge_max]
+                    "range": [0, gauge_max],
+                    "tickcolor": "white"
                 },
                 "bar": {
-                    "color": "#087eae"
+                    "color": "#00D4FF"
                 },
-                "bgcolor": "white",
-                "borderwidth": 2,
-                "bordercolor": "#dce8f4"
+                "bgcolor": "#111111",
+                "bordercolor": "#333333",
+                "steps": [
+                    {
+                        "range": [0, gauge_max * 0.5],
+                        "color": "#10251D"
+                    },
+                    {
+                        "range": [
+                            gauge_max * 0.5,
+                            gauge_max * 0.8
+                        ],
+                        "color": "#332A12"
+                    },
+                    {
+                        "range": [
+                            gauge_max * 0.8,
+                            gauge_max
+                        ],
+                        "color": "#351414"
+                    }
+                ]
             }
         )
     )
 
     gauge.update_layout(
-        height=330,
-        margin=dict(l=25, r=25, t=60, b=20),
-        paper_bgcolor="rgba(0,0,0,0)",
-        font={"color": "#073b66"}
+        template="plotly_dark",
+        paper_bgcolor="#000000",
+        plot_bgcolor="#000000",
+        height=350,
+        margin=dict(l=25, r=25, t=60, b=20)
     )
 
-    st.plotly_chart(gauge, use_container_width=True)
-
-    if level_change > 0:
-        st.info(
-            f"The model predicts a rise of {level_change:.2f} m "
-            "relative to the entered current level."
-        )
-    elif level_change < 0:
-        st.info(
-            f"The model predicts a fall of "
-            f"{abs(level_change):.2f} m relative to the "
-            "entered current level."
-        )
-    else:
-        st.info("The predicted level equals the entered current level.")
-
-    st.warning(
-        "This is an experimental prediction from a model trained "
-        "on synthetic data. It is not a validated flood forecast. "
-        "Do not use it for emergency decisions."
+    st.plotly_chart(
+        gauge,
+        use_container_width=True
     )
 
 
-# --------------------------------------------------
-# TAB 2: GRAPHS
-# --------------------------------------------------
+    # ========================================================
+    # CURRENT VS PREDICTED LEVEL
+    # ========================================================
 
-with tab2:
-
-    st.subheader("Current vs Predicted Level")
+    st.markdown(
+        '<div class="section-heading">'
+        '📈 Current vs Predicted Level'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     comparison_df = pd.DataFrame({
         "Measurement": [
-            "Entered current level",
-            "Predicted next-day level"
+            "Entered Current Level",
+            "Predicted Next-Day Level"
         ],
-        "River level (m)": [
+        "Water Level (m)": [
             river_level_m,
-            prediction
+            prediction_value
         ]
     })
 
-    bar_fig = px.bar(
+    fig_comparison = px.bar(
         comparison_df,
         x="Measurement",
-        y="River level (m)",
+        y="Water Level (m)",
         color="Measurement",
-        text="River level (m)",
-        title="Current and Predicted River Levels"
+        color_discrete_sequence=[
+            "#007F99",
+            "#00D4FF"
+        ],
+        text="Water Level (m)"
     )
 
-    bar_fig.update_traces(
+    fig_comparison.update_traces(
         texttemplate="%{text:.2f} m",
         textposition="outside"
     )
 
-    bar_fig.update_layout(
+    fig_comparison.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="#000000",
+        plot_bgcolor="#000000",
+        font_color="white",
         showlegend=False,
-        yaxis_title="River level (m)",
+        yaxis_title="Water Level (m)",
         xaxis_title="",
-        margin=dict(l=15, r=15, t=60, b=20)
+        margin=dict(l=20, r=20, t=30, b=20)
     )
 
-    st.plotly_chart(bar_fig, use_container_width=True)
-
-    st.subheader("Input Sensitivity Explorer")
-
-    st.write(
-        "Explore how rainfall affects the prediction while keeping "
-        "all other inputs fixed."
+    st.plotly_chart(
+        fig_comparison,
+        use_container_width=True
     )
 
-    rainfall_range = np.linspace(0, 200, 41)
 
-    sensitivity_df = pd.DataFrame({
-        "rainfall_mm": rainfall_range,
-        "rainfall_3d_total_mm": rainfall_3d_total_mm,
-        "rainfall_7d_total_mm": rainfall_7d_total_mm,
-        "river_level_m": river_level_m,
-        "river_level_change_m": river_level_change_m,
-        "dam_storage_pct": dam_storage_pct,
-        "dam_inflow_m3s": dam_inflow_m3s,
-        "dam_outflow_m3s": dam_outflow_m3s
-    })[FEATURES]
+    # ========================================================
+    # INPUT SUMMARY
+    # ========================================================
 
-    try:
-        sensitivity_df["Predicted level (m)"] = model.predict(
-            sensitivity_df[FEATURES]
-        )
+    st.markdown(
+        '<div class="section-heading">'
+        '📋 Prediction Input Summary'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-        sensitivity_fig = px.line(
-            sensitivity_df,
-            x="rainfall_mm",
-            y="Predicted level (m)",
-            markers=True,
-            title="Model Output vs Current Rainfall Input"
-        )
-
-        sensitivity_fig.add_vline(
-            x=rainfall_mm,
-            line_dash="dash",
-            annotation_text="Selected rainfall"
-        )
-
-        sensitivity_fig.update_layout(
-            xaxis_title="Current rainfall input (mm)",
-            yaxis_title="Predicted next-day level (m)"
-        )
-
-        st.plotly_chart(
-            sensitivity_fig,
-            use_container_width=True
-        )
-
-    except Exception as error:
-        st.error("Could not generate the sensitivity graph.")
-        st.code(str(error))
-
-
-# --------------------------------------------------
-# TAB 3: RAINFALL
-# --------------------------------------------------
-
-with tab3:
-
-    st.subheader("Rainfall Information")
-
-    if weather_available:
-
-        st.write(
-            "Source: Open-Meteo weather model. "
-            "These are weather estimates, not local rain-gauge readings."
-        )
-
-        r1, r2, r3 = st.columns(3)
-
-        with r1:
-            metric_card(
-                "Current-hour precipitation",
-                f"{weather['current_rainfall']:.1f} mm",
-                "Weather API estimate"
-            )
-
-        with r2:
-            metric_card(
-                "Last 3 days",
-                f"{weather['rainfall_3d']:.1f} mm",
-                "Sum of completed hourly estimates"
-            )
-
-        with r3:
-            metric_card(
-                "Last 7 days",
-                f"{weather['rainfall_7d']:.1f} mm",
-                "Sum of completed hourly estimates"
-            )
-
-        weather_df = weather["hourly_df"].copy()
-
-        if not weather_df.empty:
-
-            now = pd.Timestamp.now(tz=TIMEZONE).tz_localize(None)
-
-            recent_df = weather_df[
-                weather_df["time"] <= now
-            ].tail(168)
-
-            rain_fig = px.area(
-                recent_df,
-                x="time",
-                y="rainfall",
-                title="Hourly Precipitation Estimates"
-            )
-
-            rain_fig.update_layout(
-                xaxis_title="Time",
-                yaxis_title="Precipitation (mm)"
-            )
-
-            st.plotly_chart(
-                rain_fig,
-                use_container_width=True
-            )
-
-            st.download_button(
-                "📥 Download rainfall data",
-                data=recent_df.to_csv(index=False).encode("utf-8"),
-                file_name="nila_rainfall_data.csv",
-                mime="text/csv"
-            )
-
-    else:
-        st.info(
-            "Rainfall charts will appear when the weather API "
-            "becomes available."
-        )
-
-
-# --------------------------------------------------
-# TAB 4: INPUT DETAILS
-# --------------------------------------------------
-
-with tab4:
-
-    st.subheader("Model Input Summary")
-
-    input_display = pd.DataFrame({
-        "Feature": FEATURES,
-        "Input value": [
-            input_values[name] for name in FEATURES
+    summary_df = pd.DataFrame({
+        "Parameter": FEATURES,
+        "Entered Value": [
+            rainfall_mm,
+            rainfall_3d_total_mm,
+            rainfall_7d_total_mm,
+            river_level_m,
+            river_level_change_m,
+            dam_storage_pct,
+            dam_inflow_m3s,
+            dam_outflow_m3s
         ]
     })
 
     st.dataframe(
-        input_display,
-        use_container_width=True,
-        hide_index=True
+        summary_df,
+        hide_index=True,
+        use_container_width=True
     )
 
-    st.subheader("Prediction Report")
+
+    # ========================================================
+    # DOWNLOAD REPORT
+    # ========================================================
 
     report = {
         "project": "Nila River Water Level Prediction",
         "generated_at": datetime.now().isoformat(),
-        "input_features": input_values,
-        "predicted_next_day_river_level_m": prediction,
-        "predicted_change_m": level_change,
-        "weather_source": (
-            "Open-Meteo weather model estimate"
-            if weather_available
-            else "Unavailable"
-        ),
-        "model_status": (
-            "Experimental; trained on synthetic data"
-        )
+        "prediction_target": "Next-day river level",
+        "predicted_river_level_m": prediction_value,
+        "entered_current_level_m": river_level_m,
+        "predicted_change_m": difference,
+        "inputs": {
+            feature: float(input_data.iloc[0][feature])
+            for feature in FEATURES
+        },
+        "model": "Multiple Linear Regression"
     }
 
     st.download_button(
-        "📥 Download prediction report (JSON)",
-        data=json.dumps(report, indent=2),
-        file_name="nila_prediction_report.json",
+        label="📥 Download Prediction Report (JSON)",
+        data=json.dumps(report, indent=4),
+        file_name="nila_river_prediction.json",
         mime="application/json",
         use_container_width=True
     )
 
 
-# --------------------------------------------------
-# FOOTER
-# --------------------------------------------------
+# ============================================================
+# RAINFALL CHART
+# ============================================================
 
-st.divider()
+st.markdown("---")
+
+st.markdown(
+    '<div class="section-heading">'
+    '🌧️ Rainfall Monitoring'
+    '</div>',
+    unsafe_allow_html=True
+)
+
+if not weather_df.empty:
+
+    weather_df["date"] = (
+        weather_df["time"].dt.strftime("%d %b")
+    )
+
+    daily_rainfall = (
+        weather_df
+        .groupby("date", sort=False)["rainfall_mm"]
+        .sum()
+        .reset_index()
+    )
+
+    fig_rain = px.bar(
+        daily_rainfall,
+        x="date",
+        y="rainfall_mm",
+        labels={
+            "date": "Date",
+            "rainfall_mm": "Rainfall (mm)"
+        },
+        title="Hourly Weather Data Aggregated by Day",
+        color_discrete_sequence=["#00A6CC"]
+    )
+
+    fig_rain.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="#000000",
+        plot_bgcolor="#000000",
+        font_color="white",
+        xaxis_title="Date",
+        yaxis_title="Rainfall (mm)",
+        margin=dict(l=20, r=20, t=60, b=20)
+    )
+
+    st.plotly_chart(
+        fig_rain,
+        use_container_width=True
+    )
+
+    st.caption(
+        "Rainfall is estimated weather data for the configured "
+        "coordinates. It is not a verified river-gauge measurement."
+    )
+
+else:
+
+    st.warning(
+        "Rainfall chart unavailable because live weather data "
+        "could not be retrieved. Please check your internet "
+        "connection and try again."
+    )
+
+
+# ============================================================
+# IMPORTANT DISCLAIMER
+# ============================================================
+
+st.markdown("---")
+
+st.warning(
+    "Research prototype only: This model uses your trained "
+    "machine-learning model and the values entered by the user. "
+    "The model's accuracy depends on its training data. "
+    "Do not use its predictions for real flood warnings or "
+    "emergency decisions without validation against reliable "
+    "river-gauge measurements and official warnings."
+)
+
+
+# ============================================================
+# FOOTER
+# ============================================================
 
 st.markdown("""
-<div style="text-align:center;color:#60758a;padding:12px">
-    <strong>🌊 Nila River Predictor</strong><br>
-    Experimental machine learning project<br>
-    <small>
-        Predictions are not validated flood warnings.
-        Consult official river-gauge data and local authorities
-        for safety decisions.
-    </small>
+<div class="footer">
+    Nila River Water Level Prediction |
+    AI & Machine Learning Mini Project
+    <br>
+    Built with Python, Streamlit and Multiple Linear Regression
 </div>
 """, unsafe_allow_html=True)
-
 
 
