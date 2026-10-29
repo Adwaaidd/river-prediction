@@ -17,10 +17,74 @@ from streamlit_autorefresh import st_autorefresh
 # --------------------------------------------------
 
 st.set_page_config(
-    page_title="Nila River Predictor",
+    page_title=" River Predictor",
     page_icon="🌊",
     layout="wide",
     initial_sidebar_state="expanded"
+    st.markdown("""
+<style>
+/* Main app background */
+.stApp {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+/* Main content area */
+[data-testid="stAppViewContainer"] {
+    background-color: #000000;
+}
+
+/* Sidebar background */
+[data-testid="stSidebar"] {
+    background-color: #0A0A0A;
+}
+
+/* Headings and text */
+h1, h2, h3, h4, p, label, span {
+    color: #FFFFFF;
+}
+
+/* Metric cards */
+[data-testid="stMetric"] {
+    background-color: #111111;
+    border: 1px solid #292929;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+/* Input fields */
+.stNumberInput input,
+.stTextInput input {
+    background-color: #151515;
+    color: #FFFFFF;
+}
+
+/* Dropdowns */
+.stSelectbox div[data-baseweb="select"] {
+    background-color: #151515;
+    color: #FFFFFF;
+}
+
+/* Buttons */
+.stButton > button {
+    background-color: #1DB954;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+}
+
+.stButton > button:hover {
+    background-color: #169C46;
+    color: #FFFFFF;
+    border: 1px solid #1DB954;
+}
+
+/* Dividers */
+hr {
+    border-color: #333333;
+}
+</style>
+""", unsafe_allow_html=True)
 )
 
 # Refresh the dashboard every 5 minutes
