@@ -218,8 +218,8 @@ hr {
 MODEL_PATH = Path(__file__).parent / "nila_river_mlr.pkl"
 
 # Approximate Nila River region coordinates
-LATITUDE = 10.77
-LONGITUDE = 76.38
+LATITUDE = 11.8745
+LONGITUDE = 75.3704
 
 FEATURES = [
     "rainfall_mm",
