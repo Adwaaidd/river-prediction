@@ -17,7 +17,7 @@ from streamlit_autorefresh import st_autorefresh
 # =========================================================
 
 st.set_page_config(
-    page_title=" River Prediction",
+    page_title="Nila River Prediction",
     page_icon="🌊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -31,7 +31,7 @@ st_autorefresh(
 
 
 # =========================================================
-# BLACK THEME - CUSTOM CSS
+# BLACK THEME & DYNAMIC ANIMATED CSS
 # =========================================================
 
 st.markdown("""
@@ -139,6 +139,47 @@ h1, h2, h3, h4, h5 {
 @keyframes waveAnimationFast {
     0% { background-position-x: 0px; }
     100% { background-position-x: -800px; }
+}
+
+/* Pulsing Emergency Warning Banner */
+@keyframes pulseGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+        border-color: rgba(239, 68, 68, 0.8);
+    }
+    70% {
+        box-shadow: 0 0 0 14px rgba(239, 68, 68, 0);
+        border-color: rgba(239, 68, 68, 1);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        border-color: rgba(239, 68, 68, 0.8);
+    }
+}
+
+.emergency-alert {
+    background: linear-gradient(135deg, #2b0c0c, #1a0505);
+    border: 2px solid #ef4444;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    animation: pulseGlow 2s infinite;
+}
+
+.emergency-title {
+    color: #fca5a5;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.emergency-text {
+    color: #fca5a5;
+    font-size: 13px;
+    margin-top: 6px;
 }
 
 /* Metric cards */
@@ -266,7 +307,6 @@ hr {
 
 MODEL_PATH = Path(__file__).parent / "nila_river_mlr.pkl"
 
-# Approximate Nila River region coordinates
 LATITUDE = 11.8745
 LONGITUDE = 75.3704
 
@@ -314,9 +354,7 @@ except Exception as e:
 
 @st.cache_data(ttl=300)
 def get_weather_data(latitude, longitude):
-
     url = "https://api.open-meteo.com/v1/forecast"
-
     params = {
         "latitude": latitude,
         "longitude": longitude,
@@ -328,22 +366,14 @@ def get_weather_data(latitude, longitude):
     }
 
     try:
-        response = requests.get(
-            url,
-            params=params,
-            timeout=20
-        )
-
+        response = requests.get(url, params=params, timeout=20)
         response.raise_for_status()
-
         data = response.json()
 
         current = data.get("current", {})
         hourly = data.get("hourly", {})
 
-        current_rainfall = float(
-            current.get("precipitation") or 0
-        )
+        current_rainfall = float(current.get("precipitation") or 0)
 
         weather_df = pd.DataFrame({
             "time": hourly.get("time", []),
@@ -351,13 +381,9 @@ def get_weather_data(latitude, longitude):
         })
 
         if not weather_df.empty:
-            weather_df["time"] = pd.to_datetime(
-                weather_df["time"]
-            )
-
+            weather_df["time"] = pd.to_datetime(weather_df["time"])
             weather_df["rainfall_mm"] = pd.to_numeric(
-                weather_df["rainfall_mm"],
-                errors="coerce"
+                weather_df["rainfall_mm"], errors="coerce"
             ).fillna(0)
 
         return current_rainfall, weather_df, None
@@ -377,22 +403,15 @@ current_rainfall, weather_df, weather_error = get_weather_data(
 # =========================================================
 
 st.sidebar.markdown("# 🌊  RIVER")
-st.sidebar.caption(" Water Level Prediction System")
+st.sidebar.caption("Water Level Prediction System")
 
 st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 📍 Location")
-
 st.sidebar.write("Latitude")
 st.sidebar.code(str(LATITUDE))
-
 st.sidebar.write("Longitude")
 st.sidebar.code(str(LONGITUDE))
-
-st.sidebar.caption(
-    "Approximate coordinates. Weather readings represent "
-    "the selected location, not a river-gauge station."
-)
 
 st.sidebar.markdown("---")
 
@@ -405,8 +424,6 @@ else:
         "Current precipitation",
         f"{current_rainfall:.1f} mm"
     )
-
-st.sidebar.caption("Weather refresh interval: 5 minutes")
 
 st.sidebar.markdown("---")
 
@@ -477,10 +494,7 @@ dam_outflow_m3s = st.sidebar.number_input(
 )
 
 st.sidebar.markdown("---")
-
-st.sidebar.caption(
-    "Model: Multiple Linear Regression"
-)
+st.sidebar.caption("Model: Multiple Linear Regression")
 
 
 # =========================================================
@@ -504,10 +518,10 @@ st.markdown("""
 
 
 # =========================================================
-# LIVE STATUS
+# DYNAMIC STATUS & WEATHER SEVERITY BADGE
 # =========================================================
 
-status_col1, status_col2 = st.columns(2)
+status_col1, status_col2, status_col3 = st.columns(3)
 
 with status_col1:
     st.markdown(
@@ -517,9 +531,17 @@ with status_col1:
 
 with status_col2:
     if weather_error:
-        st.markdown("**🌧️ Weather API:** Unavailable")
+        st.markdown("**🌧️ Weather API:** ⚠️ Unavailable")
     else:
-        st.markdown("**🌧️ Weather API:** Connected")
+        st.markdown("**🌧️ Weather API:** 🟢 Connected")
+
+with status_col3:
+    if current_rainfall > 20:
+        st.markdown("**⚡ Severity:** 🔴 Heavy Rainfall Alert")
+    elif current_rainfall > 5:
+        st.markdown("**⚡ Severity:** 🟡 Moderate Rain")
+    else:
+        st.markdown("**⚡ Severity:** 🟢 Normal Conditions")
 
 
 # =========================================================
@@ -541,7 +563,7 @@ input_data = input_data[FEATURES]
 
 
 # =========================================================
-# PREDICTION
+# PREDICTION BUTTON & LOGIC
 # =========================================================
 
 st.markdown(
@@ -553,13 +575,9 @@ if st.button(
     "🔮 Predict Next-Day Water Level",
     use_container_width=True
 ):
-
     try:
         result = model.predict(input_data)
-
-        prediction = float(
-            np.asarray(result).reshape(-1)[0]
-        )
+        prediction = float(np.asarray(result).reshape(-1)[0])
 
         if not np.isfinite(prediction):
             raise ValueError("The model returned an invalid value.")
@@ -578,21 +596,17 @@ if st.button(
 prediction = st.session_state.get("river_prediction")
 
 if prediction is not None:
-
     previous_inputs = st.session_state.get(
         "river_prediction_inputs",
         input_data
     )
 
-    previous_level = float(
-        previous_inputs.iloc[0]["river_level_m"]
-    )
-
+    previous_level = float(previous_inputs.iloc[0]["river_level_m"])
     difference = prediction - previous_level
 
-    if difference > 0.01:
-        trend = "Rising ↗"
-    elif difference < -0.01:
+    if difference > 0.05:
+        trend = "Rising Fast 🚀" if difference > 0.2 else "Rising ↗"
+    elif difference < -0.05:
         trend = "Falling ↘"
     else:
         trend = "Stable →"
@@ -609,44 +623,50 @@ if prediction is not None:
     with col1:
         st.markdown(f"""
         <div class="metric-card">
-            <div class="metric-title">
-                PREDICTED NEXT-DAY LEVEL
-            </div>
-            <div class="metric-value">
-                {prediction:.2f} m
-            </div>
-            <div class="metric-caption">
-                Machine-learning estimate
-            </div>
+            <div class="metric-title">PREDICTED NEXT-DAY LEVEL</div>
+            <div class="metric-value">{prediction:.2f} m</div>
+            <div class="metric-caption">Machine-learning estimate</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""
         <div class="metric-card">
-            <div class="metric-title">
-                ESTIMATED LEVEL CHANGE
-            </div>
-            <div class="metric-value">
-                {difference:+.2f} m
-            </div>
-            <div class="metric-caption">
-                Compared with entered current level
-            </div>
+            <div class="metric-title">ESTIMATED LEVEL CHANGE</div>
+            <div class="metric-value">{difference:+.2f} m</div>
+            <div class="metric-caption">Compared with current level</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown(f"""
         <div class="metric-card">
-            <div class="metric-title">
-                PREDICTED TREND
+            <div class="metric-title">PREDICTED TREND</div>
+            <div class="metric-value">{trend}</div>
+            <div class="metric-caption">Based on model projection</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Dynamic Water Hazard Warning Signal Banner
+    if prediction > 6.0:
+        st.markdown("""
+        <div class="emergency-alert">
+            <div class="emergency-title">
+                🚨 CRITICAL FLOOD WARNING SIGNAL ACTIVE
             </div>
-            <div class="metric-value">
-                {trend}
+            <div class="emergency-text">
+                Predicted water level exceeds critical safety thresholds (> 6.0m). Immediate downstream monitoring advised.
             </div>
-            <div class="metric-caption">
-                Based on the model prediction
+        </div>
+        """, unsafe_allow_html=True)
+    elif prediction > 4.0:
+        st.markdown("""
+        <div class="emergency-alert" style="border-color: #f59e0b; background: linear-gradient(135deg, #2b1d0c, #1a1005);">
+            <div class="emergency-title" style="color: #fde68a;">
+                ⚠️ ELEVATED WATER LEVEL ADVISORY
+            </div>
+            <div class="emergency-text" style="color: #fde68a;">
+                Water level is projected to rise significantly. Keep continuous watch on local inflows.
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -661,11 +681,7 @@ if prediction is not None:
         unsafe_allow_html=True
     )
 
-    gauge_max = max(
-        10.0,
-        prediction * 1.5,
-        previous_level * 1.5
-    )
+    gauge_max = max(10.0, prediction * 1.5, previous_level * 1.5)
 
     gauge = go.Figure(
         go.Indicator(
@@ -673,42 +689,18 @@ if prediction is not None:
             value=prediction,
             number={
                 "suffix": " m",
-                "font": {
-                    "color": "#00D4FF",
-                    "size": 36
-                }
+                "font": {"color": "#00D4FF", "size": 36}
             },
-            title={
-                "text": "Predicted River Level",
-                "font": {"color": "white"}
-            },
+            title={"text": "Predicted River Level", "font": {"color": "white"}},
             gauge={
-                "axis": {
-                    "range": [0, gauge_max],
-                    "tickcolor": "white"
-                },
+                "axis": {"range": [0, gauge_max], "tickcolor": "white"},
                 "bar": {"color": "#00D4FF"},
                 "bgcolor": "#111111",
                 "bordercolor": "#333333",
                 "steps": [
-                    {
-                        "range": [0, gauge_max * 0.5],
-                        "color": "#10251D"
-                    },
-                    {
-                        "range": [
-                            gauge_max * 0.5,
-                            gauge_max * 0.8
-                        ],
-                        "color": "#332A12"
-                    },
-                    {
-                        "range": [
-                            gauge_max * 0.8,
-                            gauge_max
-                        ],
-                        "color": "#351414"
-                    }
+                    {"range": [0, gauge_max * 0.5], "color": "#10251D"},
+                    {"range": [gauge_max * 0.5, gauge_max * 0.8], "color": "#332A12"},
+                    {"range": [gauge_max * 0.8, gauge_max], "color": "#351414"}
                 ]
             }
         )
@@ -722,10 +714,7 @@ if prediction is not None:
         margin=dict(l=25, r=25, t=60, b=20)
     )
 
-    st.plotly_chart(
-        gauge,
-        use_container_width=True
-    )
+    st.plotly_chart(gauge, use_container_width=True)
 
 
     # =====================================================
@@ -733,21 +722,13 @@ if prediction is not None:
     # =====================================================
 
     st.markdown(
-        '<div class="section-title">'
-        '📈 Current vs Predicted River Level'
-        '</div>',
+        '<div class="section-title">📈 Current vs Predicted River Level</div>',
         unsafe_allow_html=True
     )
 
     comparison_df = pd.DataFrame({
-        "Measurement": [
-            "Current Level",
-            "Predicted Level"
-        ],
-        "Water Level (m)": [
-            previous_level,
-            prediction
-        ]
+        "Measurement": ["Current Level", "Predicted Level"],
+        "Water Level (m)": [previous_level, prediction]
     })
 
     comparison_fig = px.bar(
@@ -756,10 +737,7 @@ if prediction is not None:
         y="Water Level (m)",
         color="Measurement",
         text="Water Level (m)",
-        color_discrete_sequence=[
-            "#007F99",
-            "#00D4FF"
-        ]
+        color_discrete_sequence=["#007F99", "#00D4FF"]
     )
 
     comparison_fig.update_traces(
@@ -778,10 +756,7 @@ if prediction is not None:
         margin=dict(l=20, r=20, t=30, b=20)
     )
 
-    st.plotly_chart(
-        comparison_fig,
-        use_container_width=True
-    )
+    st.plotly_chart(comparison_fig, use_container_width=True)
 
 
     # =====================================================
@@ -789,15 +764,12 @@ if prediction is not None:
     # =====================================================
 
     st.markdown(
-        '<div class="section-title">'
-        '🧪 Rainfall Sensitivity Explorer'
-        '</div>',
+        '<div class="section-title">🧪 Rainfall Sensitivity Explorer</div>',
         unsafe_allow_html=True
     )
 
     st.caption(
-        "Explore how changing the current rainfall input affects "
-        "the model prediction while keeping the other inputs fixed."
+        "Explore how changing current rainfall affects predictions while keeping other factors constant."
     )
 
     rainfall_range = st.slider(
@@ -808,29 +780,15 @@ if prediction is not None:
         step=5
     )
 
-    rainfall_values = np.linspace(
-        rainfall_range[0],
-        rainfall_range[1],
-        20
-    )
-
+    rainfall_values = np.linspace(rainfall_range[0], rainfall_range[1], 20)
     sensitivity_predictions = []
 
     for rainfall_value in rainfall_values:
-
         test_input = previous_inputs.copy()
-
-        test_input.loc[
-            test_input.index[0],
-            "rainfall_mm"
-        ] = rainfall_value
-
+        test_input.loc[test_input.index[0], "rainfall_mm"] = rainfall_value
         test_prediction = float(
-            np.asarray(
-                model.predict(test_input[FEATURES])
-            ).reshape(-1)[0]
+            np.asarray(model.predict(test_input[FEATURES])).reshape(-1)[0]
         )
-
         sensitivity_predictions.append(test_prediction)
 
     sensitivity_df = pd.DataFrame({
@@ -857,10 +815,7 @@ if prediction is not None:
         font_color="white"
     )
 
-    st.plotly_chart(
-        sensitivity_fig,
-        use_container_width=True
-    )
+    st.plotly_chart(sensitivity_fig, use_container_width=True)
 
 
     # =====================================================
@@ -901,24 +856,16 @@ st.markdown(
 )
 
 if not weather_df.empty:
-
     chart_df = weather_df.copy()
-
     chart_df["Date"] = chart_df["time"].dt.date
-
-    daily_rainfall = (
-        chart_df.groupby("Date", as_index=False)["rainfall_mm"]
-        .sum()
-    )
+    daily_rainfall = chart_df.groupby("Date", as_index=False)["rainfall_mm"].sum()
 
     rainfall_fig = px.bar(
         daily_rainfall,
         x="Date",
         y="rainfall_mm",
         title="Rainfall Over Time",
-        labels={
-            "rainfall_mm": "Rainfall (mm)"
-        },
+        labels={"rainfall_mm": "Rainfall (mm)"},
         color_discrete_sequence=["#00A6CC"]
     )
 
@@ -931,34 +878,17 @@ if not weather_df.empty:
         yaxis_title="Rainfall (mm)"
     )
 
-    st.plotly_chart(
-        rainfall_fig,
-        use_container_width=True
-    )
-
+    st.plotly_chart(rainfall_fig, use_container_width=True)
 else:
-    st.warning(
-        "Live rainfall graph is unavailable. "
-        "Check your internet connection or try again later."
-    )
+    st.warning("Live rainfall graph is unavailable.")
 
 
 # =========================================================
-# INPUT SUMMARY
+# INPUT SUMMARY & DISCLAIMER
 # =========================================================
 
 with st.expander("📋 View Model Input Values"):
-
-    st.dataframe(
-        input_data,
-        use_container_width=True,
-        hide_index=True
-    )
-
-
-# =========================================================
-# DISCLAIMER
-# =========================================================
+    st.dataframe(input_data, use_container_width=True, hide_index=True)
 
 st.markdown("---")
 
@@ -968,11 +898,6 @@ st.warning(
     "The model's accuracy depends on its training data. Do not use "
     "this prototype for actual flood warnings or emergency decisions."
 )
-
-
-# =========================================================
-# FOOTER
-# =========================================================
 
 st.markdown("""
 <div class="footer">
