@@ -22,66 +22,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-st.markdown("""
-<style>
-.river-container {
-    position: fixed;
-    right: 0;
-    top: 0;
-    width: 180px;
-    height: 100vh;
-    overflow: hidden;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.85;
-    background: linear-gradient(180deg, #020b16, #061c2c);
-}
 
-.river {
-    position: absolute;
-    width: 100%;
-    height: 200%;
-    top: -50%;
-    background:
-        repeating-linear-gradient(
-            160deg,
-            transparent 0px,
-            transparent 18px,
-            rgba(0, 220, 255, 0.35) 20px,
-            transparent 23px,
-            transparent 42px
-        );
-    animation: riverFlow 5s linear infinite;
-}
-
-@keyframes riverFlow {
-    from { transform: translateY(0); }
-    to { transform: translateY(100px); }
-}
-
-.river-glow {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(
-        ellipse at center,
-        rgba(0, 180, 255, 0.25),
-        transparent 70%
-    );
-}
-
-@media (max-width: 900px) {
-    .river-container {
-        display: none;
-    }
-}
-</style>
-
-<div class="river-container">
-    <div class="river-glow"></div>
-    <div class="river"></div>
-</div>
-""", unsafe_allow_html=True)
 # Refresh every 5 minutes
 st_autorefresh(
     interval=5 * 60 * 1000,
@@ -130,25 +71,74 @@ h1, h2, h3, h4, h5 {
     color: #D1D5DB;
 }
 
-/* Main hero banner */
+/* Main animated flowing river hero banner */
 .hero {
-    background: linear-gradient(135deg, #050505, #001B2B);
+    position: relative;
+    background: linear-gradient(135deg, #020813, #001B2B);
     border: 1px solid #06445A;
     border-radius: 18px;
-    padding: 28px;
+    padding: 32px 28px;
     margin-bottom: 22px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
 }
 
 .hero-title {
     font-size: 34px;
     font-weight: 800;
-    color: #FFFFFF;
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 .hero-subtitle {
-    color: #9CA3AF;
+    color: #E2E8F0;
     font-size: 15px;
     margin-top: 8px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Animated Water Waves Layered Background */
+.hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0 C150,90 350,-40 500,40 C650,120 900,10 1200,50 L1200,120 L0,120 Z" fill="%2300D4FF" fill-opacity="0.12"/></svg>') repeat-x;
+    background-size: 1000px 100%;
+    animation: waveAnimation 14s linear infinite;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 85%;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,30 C200,110 400,0 600,60 C800,120 1000,20 1200,60 L1200,120 L0,120 Z" fill="%23007F99" fill-opacity="0.18"/></svg>') repeat-x;
+    background-size: 800px 100%;
+    animation: waveAnimationFast 8s linear infinite;
+    z-index: 3;
+    pointer-events: none;
+}
+
+@keyframes waveAnimation {
+    0% { background-position-x: 0px; }
+    100% { background-position-x: 1000px; }
+}
+
+@keyframes waveAnimationFast {
+    0% { background-position-x: 0px; }
+    100% { background-position-x: -800px; }
 }
 
 /* Metric cards */
@@ -499,13 +489,15 @@ st.sidebar.caption(
 
 st.markdown("""
 <div class="hero">
-    <div class="hero-title">
-        🌊  RIVER WATER LEVEL PREDICTION
-    </div>
-    <div class="hero-subtitle">
-        Intelligent Water Level Monitoring & Next-Day Prediction
-        <br>
-        Kerala, India | Machine Learning Dashboard
+    <div class="hero-content">
+        <div class="hero-title">
+            🌊  RIVER WATER LEVEL PREDICTION
+        </div>
+        <div class="hero-subtitle">
+            Intelligent Water Level Monitoring & Next-Day Prediction
+            <br>
+            Kerala, India | Machine Learning Dashboard
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -989,5 +981,3 @@ st.markdown("""
     Built with Python, Streamlit, Plotly and Machine Learning
 </div>
 """, unsafe_allow_html=True)
-
-
