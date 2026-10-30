@@ -673,6 +673,33 @@ if prediction is not None:
 
 
     # =====================================================
+    # INTERACTIVE WHAT-IF SCENARIO SIMULATOR
+    # =====================================================
+
+    st.markdown(
+        '<div class="section-title">🎛️ Interactive Scenario Simulator</div>',
+        unsafe_allow_html=True
+    )
+    st.caption("Quickly test how different rainfall spikes or dam releases impact the water level prediction.")
+
+    sim_col1, sim_col2, sim_col3 = st.columns(3)
+    with sim_col1:
+        sim_rainfall = st.slider("Simulated Rainfall (mm)", 0.0, 300.0, float(rainfall_mm), 5.0)
+    with sim_col2:
+        sim_dam_pct = st.slider("Simulated Dam Storage (%)", 0.0, 100.0, float(dam_storage_pct), 1.0)
+    with sim_col3:
+        sim_outflow = st.slider("Simulated Dam Outflow (m³/s)", 0.0, 5000.0, float(dam_outflow_m3s), 50.0)
+
+    sim_input = previous_inputs.copy()
+    sim_input.loc[0, "rainfall_mm"] = sim_rainfall
+    sim_input.loc[0, "dam_storage_pct"] = sim_dam_pct
+    sim_input.loc[0, "dam_outflow_m3s"] = sim_outflow
+    sim_prediction = float(np.asarray(model.predict(sim_input[FEATURES])).reshape(-1)[0])
+
+    st.info(f"💡 **Simulated Next-Day Level:** `{sim_prediction:.2f} m` (Compared to baseline prediction of `{prediction:.2f} m`)")
+
+
+    # =====================================================
     # GAUGE
     # =====================================================
 
@@ -881,6 +908,51 @@ if not weather_df.empty:
     st.plotly_chart(rainfall_fig, use_container_width=True)
 else:
     st.warning("Live rainfall graph is unavailable.")
+
+
+# =========================================================
+# COMMUNITY OBSERVATIONS & FIELD REPORTS
+# =========================================================
+
+st.markdown("---")
+st.markdown('<div class="section-title">🗣️ Community & Field Observations</div>', unsafe_allow_html=True)
+st.caption("Notice something at the riverbank? Log a quick field report for other dashboard viewers.")
+
+if "community_reports" not in st.session_state:
+    st.session_state["community_reports"] = []
+
+with st.form("community_form"):
+    reporter_name = st.text_input("Your Name / Station ID")
+    observation_text = st.text_input("Observation (e.g., Water level rising near Shoranur bridge)")
+    report_submitted = st.form_submit_button("Submit Field Report")
+    
+    if report_submitted and observation_text:
+        st.session_state["community_reports"].insert(0, {
+            "time": datetime.now().strftime("%I:%M %p, %d %b"),
+            "name": reporter_name if reporter_name else "Anonymous",
+            "text": observation_text
+        })
+        st.success("Report added successfully!")
+
+if st.session_state["community_reports"]:
+    st.markdown("**Recent Field Reports:**")
+    for rep in st.session_state["community_reports"][:3]:
+        st.markdown(f"> *{rep['time']}* — **{rep['name']}**: {rep['text']}")
+
+
+# =========================================================
+# EMERGENCY GUIDELINES EXPANDER
+# =========================================================
+
+with st.expander("🚨 Emergency Guidelines & Helpline Contacts"):
+    st.markdown("""
+    * **State Emergency Operations Center:** 1077 / 1070
+    * **District Disaster Management Authority:** Keep local taluk office contacts handy.
+    * **Safety Checklist:**
+      1. Move electronic appliances and valuables to higher floors if flood alerts trigger.
+      2. Keep emergency kits (drinking water, flashlight, first aid, essential medicines) ready.
+      3. Avoid crossing overflowing bridges or streams.
+    """)
 
 
 # =========================================================
