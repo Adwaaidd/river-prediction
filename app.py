@@ -22,7 +22,66 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+st.markdown("""
+<style>
+.river-container {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 180px;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.85;
+    background: linear-gradient(180deg, #020b16, #061c2c);
+}
 
+.river {
+    position: absolute;
+    width: 100%;
+    height: 200%;
+    top: -50%;
+    background:
+        repeating-linear-gradient(
+            160deg,
+            transparent 0px,
+            transparent 18px,
+            rgba(0, 220, 255, 0.35) 20px,
+            transparent 23px,
+            transparent 42px
+        );
+    animation: riverFlow 5s linear infinite;
+}
+
+@keyframes riverFlow {
+    from { transform: translateY(0); }
+    to { transform: translateY(100px); }
+}
+
+.river-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 180, 255, 0.25),
+        transparent 70%
+    );
+}
+
+@media (max-width: 900px) {
+    .river-container {
+        display: none;
+    }
+}
+</style>
+
+<div class="river-container">
+    <div class="river-glow"></div>
+    <div class="river"></div>
+</div>
+""", unsafe_allow_html=True)
 # Refresh every 5 minutes
 st_autorefresh(
     interval=5 * 60 * 1000,
