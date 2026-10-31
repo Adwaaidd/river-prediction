@@ -402,7 +402,7 @@ current_rainfall, weather_df, weather_error = get_weather_data(
 # LEFT SIDEBAR
 # =========================================================
 
-st.sidebar.markdown("# 🌊  RIVER")
+
 st.sidebar.caption("Water Level Prediction System")
 
 st.sidebar.markdown("---")
