@@ -647,19 +647,19 @@ if prediction is not None:
         </div>
         """, unsafe_allow_html=True)
 
-    # Dynamic Water Hazard Warning Signal Banner
-    if prediction > 6.0:
+    # Dynamic Water Hazard Warning Signal Banner (>= 4.0 m triggers Red Alert)
+    if prediction >= 4.0:
         st.markdown("""
         <div class="emergency-alert">
             <div class="emergency-title">
                 🚨 CRITICAL FLOOD WARNING SIGNAL ACTIVE
             </div>
             <div class="emergency-text">
-                Predicted water level exceeds critical safety thresholds (> 6.0m). Immediate downstream monitoring advised.
+                Predicted water level exceeds critical safety thresholds (≥ 4.0m). Immediate downstream monitoring advised.
             </div>
         </div>
         """, unsafe_allow_html=True)
-    elif prediction > 4.0:
+    elif prediction >= 3.0:
         st.markdown("""
         <div class="emergency-alert" style="border-color: #f59e0b; background: linear-gradient(135deg, #2b1d0c, #1a1005);">
             <div class="emergency-title" style="color: #fde68a;">
@@ -670,33 +670,6 @@ if prediction is not None:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-
-    # =====================================================
-    # INTERACTIVE WHAT-IF SCENARIO SIMULATOR
-    # =====================================================
-
-    st.markdown(
-        '<div class="section-title">🎛️ Interactive Scenario Simulator</div>',
-        unsafe_allow_html=True
-    )
-    st.caption("Quickly test how different rainfall spikes or dam releases impact the water level prediction.")
-
-    sim_col1, sim_col2, sim_col3 = st.columns(3)
-    with sim_col1:
-        sim_rainfall = st.slider("Simulated Rainfall (mm)", 0.0, 300.0, float(rainfall_mm), 5.0)
-    with sim_col2:
-        sim_dam_pct = st.slider("Simulated Dam Storage (%)", 0.0, 100.0, float(dam_storage_pct), 1.0)
-    with sim_col3:
-        sim_outflow = st.slider("Simulated Dam Outflow (m³/s)", 0.0, 5000.0, float(dam_outflow_m3s), 50.0)
-
-    sim_input = previous_inputs.copy()
-    sim_input.loc[0, "rainfall_mm"] = sim_rainfall
-    sim_input.loc[0, "dam_storage_pct"] = sim_dam_pct
-    sim_input.loc[0, "dam_outflow_m3s"] = sim_outflow
-    sim_prediction = float(np.asarray(model.predict(sim_input[FEATURES])).reshape(-1)[0])
-
-    st.info(f"💡 **Simulated Next-Day Level:** `{sim_prediction:.2f} m` (Compared to baseline prediction of `{prediction:.2f} m`)")
 
 
     # =====================================================
@@ -784,6 +757,33 @@ if prediction is not None:
     )
 
     st.plotly_chart(comparison_fig, use_container_width=True)
+
+
+    # =====================================================
+    # INTERACTIVE WHAT-IF SCENARIO SIMULATOR (MOVED BELOW GRAPHS)
+    # =====================================================
+
+    st.markdown(
+        '<div class="section-title">🎛️ Interactive Scenario Simulator</div>',
+        unsafe_allow_html=True
+    )
+    st.caption("Quickly test how different rainfall spikes or dam releases impact the water level prediction.")
+
+    sim_col1, sim_col2, sim_col3 = st.columns(3)
+    with sim_col1:
+        sim_rainfall = st.slider("Simulated Rainfall (mm)", 0.0, 300.0, float(rainfall_mm), 5.0)
+    with sim_col2:
+        sim_dam_pct = st.slider("Simulated Dam Storage (%)", 0.0, 100.0, float(dam_storage_pct), 1.0)
+    with sim_col3:
+        sim_outflow = st.slider("Simulated Dam Outflow (m³/s)", 0.0, 5000.0, float(dam_outflow_m3s), 50.0)
+
+    sim_input = previous_inputs.copy()
+    sim_input.loc[0, "rainfall_mm"] = sim_rainfall
+    sim_input.loc[0, "dam_storage_pct"] = sim_dam_pct
+    sim_input.loc[0, "dam_outflow_m3s"] = sim_outflow
+    sim_prediction = float(np.asarray(model.predict(sim_input[FEATURES])).reshape(-1)[0])
+
+    st.info(f"💡 **Simulated Next-Day Level:** `{sim_prediction:.2f} m` (Compared to baseline prediction of `{prediction:.2f} m`)")
 
 
     # =====================================================
