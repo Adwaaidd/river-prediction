@@ -673,7 +673,7 @@ if prediction is not None:
 
 
     # =====================================================
-    # GAUGE
+    # GAUGE (FIXED COLOR THRESHOLDS: 4m+ IS RED)
     # =====================================================
 
     st.markdown(
@@ -698,9 +698,9 @@ if prediction is not None:
                 "bgcolor": "#111111",
                 "bordercolor": "#333333",
                 "steps": [
-                    {"range": [0, gauge_max * 0.5], "color": "#10251D"},
-                    {"range": [gauge_max * 0.5, gauge_max * 0.8], "color": "#332A12"},
-                    {"range": [gauge_max * 0.8, gauge_max], "color": "#351414"}
+                    {"range": [0, 3.0], "color": "#10251D"},       # Safe Zone (0 - 3m)
+                    {"range": [3.0, 4.0], "color": "#332A12"},     # Caution Zone (3 - 4m)
+                    {"range": [4.0, gauge_max], "color": "#351414"}  # Critical Red Zone (4m+)
                 ]
             }
         )
@@ -760,7 +760,7 @@ if prediction is not None:
 
 
     # =====================================================
-    # INTERACTIVE WHAT-IF SCENARIO SIMULATOR (MOVED BELOW GRAPHS)
+    # INTERACTIVE WHAT-IF SCENARIO SIMULATOR
     # =====================================================
 
     st.markdown(
