@@ -567,7 +567,7 @@ input_data = input_data[FEATURES]
 # =========================================================
 
 st.markdown(
-    '<div class="section-title">🎯 Water Level Prediction</div>',
+    '<div class="section-title">Water Level Prediction</div>',
     unsafe_allow_html=True
 )
 
@@ -614,7 +614,7 @@ if prediction is not None:
     st.markdown("---")
 
     st.markdown(
-        '<div class="section-title">📊 Prediction Summary</div>',
+        '<div class="section-title">Prediction Summary</div>',
         unsafe_allow_html=True
     )
 
@@ -677,7 +677,7 @@ if prediction is not None:
     # =====================================================
 
     st.markdown(
-        '<div class="section-title">🌊 Water Level Gauge</div>',
+        '<div class="section-title">Water Level Gauge</div>',
         unsafe_allow_html=True
     )
 
@@ -722,7 +722,7 @@ if prediction is not None:
     # =====================================================
 
     st.markdown(
-        '<div class="section-title">📈 Current vs Predicted River Level</div>',
+        '<div class="section-title">Current vs Predicted River Level</div>',
         unsafe_allow_html=True
     )
 
@@ -764,7 +764,7 @@ if prediction is not None:
     # =====================================================
 
     st.markdown(
-        '<div class="section-title">🎛️ Interactive Scenario Simulator</div>',
+        '<div class="section-title">Interactive Scenario Simulator</div>',
         unsafe_allow_html=True
     )
     st.caption("Quickly test how different rainfall spikes or dam releases impact the water level prediction.")
@@ -791,7 +791,7 @@ if prediction is not None:
     # =====================================================
 
     st.markdown(
-        '<div class="section-title">🧪 Rainfall Sensitivity Explorer</div>',
+        '<div class="section-title">Rainfall Sensitivity Explorer</div>',
         unsafe_allow_html=True
     )
 
@@ -878,7 +878,7 @@ if prediction is not None:
 st.markdown("---")
 
 st.markdown(
-    '<div class="section-title">🌧️ Rainfall Monitoring</div>',
+    '<div class="section-title">Rainfall Monitoring</div>',
     unsafe_allow_html=True
 )
 
